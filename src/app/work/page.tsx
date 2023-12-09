@@ -88,15 +88,16 @@ export default function WorkPage() {
 
       {/* Education Section */}
       <div className="mb-8">
+        <div className="flex items-center">
         <h3 className="text-xl font-semibold flex items-center">
           <FaGraduationCap className="mr-2" />
           Education
         </h3>
+        </div>
         <div className="border p-4 rounded-lg mb-4">
           <h4 className="text-lg font-semibold">Harvard University - Division Of Continuing Education</h4>
           <p className="text-sm">2009 - 2010</p>
           <button onClick={() => openModal('Education Details')}>Read More</button>
-          <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/AndrewVoirol?ref_src=twsrc%5Etfw">Tweets by AndrewVoirol</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
         </div>
         {/* Additional education details from the PDF */}
       </div>
