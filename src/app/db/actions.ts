@@ -1,6 +1,7 @@
 'use server';
 
-import { auth } from '../../app/auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/auth';
 import { type Session } from 'next-auth';
 import { sql } from '@vercel/postgres';
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
@@ -16,7 +17,7 @@ export async function increment(slug: string) {
 }
 
 async function getSession(): Promise<Session> {
-  let session = await auth();
+  let session = await getServerSession(authOptions);
   if (!session || !session.user) {
     throw new Error('Unauthorized');
   }

@@ -43,7 +43,21 @@ export function Navbar() {
   );
 }
 
-let cx = (...classes) => classes.filter(Boolean).join(' ');
+type CxArg = string | boolean | undefined | { [key: string]: boolean };
+
+let cx = (...classes: CxArg[]) => {
+  return classes
+    .map((c) => {
+      if (typeof c === 'object' && c !== null) {
+        return Object.keys(c)
+          .filter((key) => c[key])
+          .join(' ');
+      }
+      return c;
+    })
+    .filter(Boolean)
+    .join(' ');
+};
 
 function NavItem({ path, name }: { path: string; name: string }) {
   let pathname = usePathname() || '/';
@@ -57,9 +71,9 @@ function NavItem({ path, name }: { path: string; name: string }) {
       key={path}
       href={path}
       className={cx(
-        'transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle',
+        'transition-all hover:text-gray-800 dark:hover:text-gray-200 flex align-middle',
         {
-          'text-neutral-500': !isActive,
+          'text-gray-500': !isActive,
         }
       )}
     >
@@ -67,7 +81,7 @@ function NavItem({ path, name }: { path: string; name: string }) {
         {name}
         {path === pathname ? (
           <motion.div
-            className="absolute h-[1px] top-7 mx-2 inset-0 bg-neutral-200 dark:bg-neutral-800 z-[-1] dark:bg-gradient-to-r from-transparent to-neutral-900"
+            className="absolute h-[1px] top-7 mx-2 inset-0 bg-gray-200 dark:bg-gray-800 z-[-1] dark:bg-gradient-to-r from-transparent to-gray-900"
             layoutId="sidebar"
             transition={{
               type: 'spring',

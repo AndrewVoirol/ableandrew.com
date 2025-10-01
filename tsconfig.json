@@ -4,8 +4,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": false, // This disables all strict type-checking options
-    "noImplicitAny": false, // This specifically allows implicit 'any' types
+    "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -21,8 +20,7 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "src/*": ["./src/*"],
-      "app/*": ["./app/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -80,6 +80,8 @@ export const getVercelYouTubeSubs = cache(
   }
 );
 
+import { GuestbookEntry } from '@/app/lib/types';
+
 export async function getGuestbookEntries() {
   if (!process.env.POSTGRES_URL) {
     return [];
@@ -92,5 +94,5 @@ export async function getGuestbookEntries() {
     ORDER BY created_at DESC
     LIMIT 100
   `;
-  return entries.rows;
+  return entries.rows as GuestbookEntry[];
 }
