@@ -1,4 +1,5 @@
-import { auth } from '../auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth';
 import { getGuestbookEntries } from '../db/queries';
 import { SignIn, SignOut } from './buttons';
 import { Suspense } from 'react';
@@ -24,7 +25,7 @@ export default function GuestbookPage() {
 }
 
 async function GuestbookForm() {
-  let session = await auth();
+  let session = await getServerSession(authOptions);
 
   return session?.user ? (
     <>
@@ -46,7 +47,7 @@ async function GuestbookEntries() {
   return entries.map((entry) => (
     <div key={entry.id} className="flex flex-col space-y-1 mb-4">
       <div className="w-full text-sm break-words">
-        <span className="text-neutral-600 dark:text-neutral-400 mr-1">
+        <span className="text-gray-600 dark:text-gray-400 mr-1">
           {entry.created_by}:
         </span>
         {entry.body}
