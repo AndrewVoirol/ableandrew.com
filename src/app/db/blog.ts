@@ -40,11 +40,16 @@ function extractTweetIds(content) {
   return tweetMatches?.map((tweet) => tweet.match(/[0-9]+/g)[0]) || [];
 }
 
+function sanitizeSlug(slug: string): string {
+  // Only allow alphanumeric, dashes, underscores; replace others with ""
+  return slug.replace(/[^a-zA-Z0-9-_]/g, "");
+}
+
 function getMDXData(dir) {
   let mdxFiles = getMDXFiles(dir);
   return mdxFiles.map((file) => {
     let { metadata, content } = readMDXFile(path.join(dir, file));
-    let slug = path.basename(file, path.extname(file));
+    let slug = sanitizeSlug(path.basename(file, path.extname(file)));
     let tweetIds = extractTweetIds(content);
     return {
       metadata,
