@@ -78,12 +78,30 @@ function formatDate(date: string) {
   return `${fullDate} (${formattedDate})`;
 }
 
+// Helper function to escape dangerous characters for safe embedding inside <script> tags
+function escapeForHTML(str: string) {
+  return str.replace(/[<>&]/g, (c) =>
+    ({
+      '<': '\\u003c',
+      '>': '\\u003e',
+      '&': '\\u0026',
+    }[c] || c)
+  );
+}
+
 export default function Blog({ params }) {
   let post = getBlogPosts().find((post) => post.slug === params.slug);
 
   if (!post) {
     notFound();
   }
+
+  // Defensive: sanitize user-controlled/meta fields for JSON-LD output
+  const safeTitle = escapeForHTML(post.metadata.title);
+  const safeSummary = escapeForHTML(post.metadata.summary);
+  const safeImage = post.metadata.image ? escapeForHTML(`https://ableandrew.com${post.metadata.image}`) : escapeForHTML(`https://ableandrew.com/og?title=${post.metadata.title}`);
+  const safeSlug = escapeForHTML(post.slug);
+  const safePublishedAt = escapeForHTML(post.metadata.publishedAt);
 
   return (
     <section>
@@ -94,14 +112,12 @@ export default function Blog({ params }) {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'BlogPosting',
-            headline: post.metadata.title,
-            datePublished: post.metadata.publishedAt,
-            dateModified: post.metadata.publishedAt,
-            description: post.metadata.summary,
-            image: post.metadata.image
-              ? `https://ableandrew.com${post.metadata.image}`
-              : `https://ableandrew.com/og?title=${post.metadata.title}`,
-            url: `https://ableandrew.com/blog/${post.slug}`,
+            headline: safeTitle,
+            datePublished: safePublishedAt,
+            dateModified: safePublishedAt,
+            description: safeSummary,
+            image: safeImage,
+            url: `https://ableandrew.com/blog/${safeSlug}`,
             author: {
               '@type': 'Person',
               name: 'Andrew Voirol',
