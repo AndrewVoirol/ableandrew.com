@@ -1,26 +1,22 @@
 'use server';
 
-import { auth } from '@/app/auth';
-import { headers } from 'next/headers';
-import { Pool } from 'pg';
+import { auth } from '../../app/auth';
+import { type Session } from 'next-auth';
+import { sql } from '@vercel/postgres';
 import { revalidatePath, unstable_noStore as noStore } from 'next/cache';
-
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-});
 
 export async function increment(slug: string) {
   noStore();
-  await pool.query(
-    'INSERT INTO views (slug, count) VALUES ($1, 1) ON CONFLICT (slug) DO UPDATE SET count = views.count + 1',
-    [slug]
-  );
+  await sql`
+    INSERT INTO views (slug, count)
+    VALUES (${slug}, 1)
+    ON CONFLICT (slug)
+    DO UPDATE SET count = views.count + 1
+  `;
 }
 
-async function getSession(): Promise<typeof auth.$Infer.Session> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+async function getSession(): Promise<Session> {
+  let session = await auth();
   if (!session || !session.user) {
     throw new Error('Unauthorized');
   }
@@ -40,10 +36,10 @@ export async function saveGuestbookEntry(formData: FormData) {
   let entry = formData.get('entry')?.toString() || '';
   let body = entry.slice(0, 500);
 
-  await pool.query(
-    'INSERT INTO guestbook (email, body, created_by, created_at) VALUES ($1, $2, $3, NOW())',
-    [email, body, created_by]
-  );
+  await sql`
+    INSERT INTO guestbook (email, body, created_by, created_at)
+    VALUES (${email}, ${body}, ${created_by}, NOW())
+  `;
 
   revalidatePath('/guestbook');
 
@@ -73,12 +69,13 @@ export async function deleteGuestbookEntries(selectedEntries: string[]) {
     throw new Error('Unauthorized');
   }
 
-  const selectedEntriesAsNumbers = selectedEntries.map(Number);
+  let selectedEntriesAsNumbers = selectedEntries.map(Number);
+  let arrayLiteral = `{${selectedEntriesAsNumbers.join(',')}}`;
 
-  await pool.query(
-    'DELETE FROM guestbook WHERE id = ANY($1::int[])',
-    [selectedEntriesAsNumbers]
-  );
+  await sql`
+    DELETE FROM guestbook
+    WHERE id = ANY(${arrayLiteral}::int[])
+  `;
 
   revalidatePath('/admin');
   revalidatePath('/guestbook');

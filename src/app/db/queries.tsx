@@ -1,15 +1,11 @@
 'use server';
 
 import { auth, youtube } from '@googleapis/youtube';
-import { Pool } from 'pg';
+import { sql } from '@vercel/postgres';
 import {
   unstable_cache as cache,
   unstable_noStore as noStore,
 } from 'next/cache';
-
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-});
 
 let googleAuth = new auth.GoogleAuth({
   credentials: {
@@ -30,8 +26,12 @@ export async function getBlogViews() {
   }
 
   noStore();
-  const { rows } = await pool.query('SELECT count FROM views');
-  return rows.reduce((acc, curr) => acc + Number(curr.count), 0);
+  let data = await sql`
+    SELECT count
+    FROM views
+  `;
+
+  return data.rows.reduce((acc, curr) => acc + Number(curr.count), 0);
 }
 
 export async function getViewsCount() {
@@ -40,8 +40,12 @@ export async function getViewsCount() {
   }
 
   noStore();
-  const { rows } = await pool.query('SELECT slug, count FROM views');
-  return rows as { slug: string; count: number }[];
+  let data = await sql`
+    SELECT slug, count
+    FROM views
+  `;
+
+  return data.rows as { slug: string; count: number }[];
 }
 
 export const getLeeYouTubeSubs = cache(
@@ -76,19 +80,17 @@ export const getVercelYouTubeSubs = cache(
   }
 );
 
-import { GuestbookEntry } from '@/app/lib/types';
-
 export async function getGuestbookEntries() {
   if (!process.env.POSTGRES_URL) {
     return [];
   }
 
   noStore();
-  const { rows } = await pool.query(`
+  let entries = await sql`
     SELECT id, body, created_by, updated_at
     FROM guestbook
     ORDER BY created_at DESC
     LIMIT 100
-  `);
-  return rows as GuestbookEntry[];
+  `;
+  return entries.rows;
 }

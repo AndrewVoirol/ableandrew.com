@@ -1,19 +1,24 @@
-import { promises as fs } from 'fs';
-import path from 'path';
+import { sql } from '@vercel/postgres';
 
 const nextConfig = {
   experimental: {
     ppr: true,
   },
   async redirects() {
-    try {
-      const redirectsFile = await fs.readFile(path.join(process.cwd(), 'redirects.json'), 'utf8');
-      const redirects = JSON.parse(redirectsFile);
-      return redirects;
-    } catch (error) {
-      console.error('Could not read redirects.json', error);
+    if (!process.env.POSTGRES_URL) {
       return [];
     }
+
+    const { rows: redirects } = await sql`
+      SELECT source, destination, permanent
+      FROM redirects;
+    `;
+
+    return redirects.map(({ source, destination, permanent }) => ({
+      source,
+      destination,
+      permanent: !!permanent,
+    }));
   },
   headers() {
     return [
@@ -27,8 +32,8 @@ const nextConfig = {
 
 const ContentSecurityPolicy = `
     default-src 'self' vercel.live;
-    script-src 'self' cdn.vercel-insights.com vercel.live va.vercel-scripts.com;
-    style-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' cdn.vercel-insights.com vercel.live va.vercel-scripts.com;
+    style-src 'self' 'unsafe-inline';
     img-src * blob: data:;
     media-src 'none';
     connect-src *;

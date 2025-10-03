@@ -8,9 +8,9 @@
   /* Light colors */
   --tweet-bg-color: #fff;
   --tweet-bg-color-hover: var(--tweet-bg-color);
-  --tweet-color-blue-secondary: var(--color-gray-600);
-  --tweet-color-blue-secondary-hover: var(--color-gray-100);
-  --tweet-font-color-secondary: var(--color-gray-500);
+  --tweet-color-blue-secondary: theme('colors.gray.600');
+  --tweet-color-blue-secondary-hover: theme('colors.gray.100');
+  --tweet-font-color-secondary: theme('colors.gray.500');
 
   /* Common properties for both themes */
   --tweet-quoted-bg-color-hover: rgba(0, 0, 0, 0.03);
@@ -42,9 +42,9 @@
     --tweet-bg-color-hover: var(--tweet-bg-color);
     --tweet-quoted-bg-color-hover: rgba(255, 255, 255, 0.03);
     --tweet-border: 1px solid #333;
-    --tweet-color-blue-secondary: var(--color-white);
+    --tweet-color-blue-secondary: theme('colors.white');
     --tweet-color-blue-secondary-hover: #333;
-    --tweet-font-color-secondary: var(--color-gray-400);
+    --tweet-font-color-secondary: theme('colors.gray.400');
   }
 }
 
@@ -55,28 +55,21 @@
 }
 
 .tweet .react-tweet-theme p a {
-  border-bottom-width: 1px;
-  transition-property: border-color;
-  border-color: var(--color-gray-300);
-}
-
-.tweet .react-tweet-theme p a:hover {
-  border-color: var(--color-gray-600);
-  text-decoration: none;
+  @apply border-b transition-[border-color] border-gray-300 hover:border-gray-600;
 }
 
 /* Dark theme link styles */
 @media (prefers-color-scheme: dark) {
   .tweet .react-tweet-theme p a {
-    color: var(--color-white);
-    border-color: var(--color-gray-500);
-  }
-  .tweet .react-tweet-theme p a:hover {
-    border-color: var(--color-white);
+    @apply text-white border-gray-500 hover:border-white;
   }
 }
 
+/* Remove link underline on hover for both themes */
+.tweet .react-tweet-theme p a:hover {
+  text-decoration: none;
+}
+
 .tweet a div {
-  font-weight: 500;
-  letter-spacing: -0.025em;
+  @apply font-medium tracking-tight;
 }

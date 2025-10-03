@@ -1,31 +1,29 @@
 'use client';
 
 import { useFormStatus } from 'react-dom';
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect } from 'react';
 import { deleteGuestbookEntries } from '../../app/db/actions';
-import { GuestbookEntry as GuestbookEntryType } from '@/app/lib/types';
-import { cx } from '@/app/lib/utils';
 
-export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
-  const [selectedInputs, setSelectedInputs] = useState<number[]>([]);
+export default function Form({ entries }) {
+  const [selectedInputs, setSelectedInputs] = useState<string[]>([]);
   const [startShiftClickIndex, setStartShiftClickIndex] = useState<number>(0);
   const [isShiftKeyPressed, setIsShiftKeyPressed] = useState(false);
   const [isCommandKeyPressed, setIsCommandKeyPressed] = useState(false);
 
   useEffect(() => {
-    const keyDownHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Shift') {
+    const keyDownHandler = ({ key }) => {
+      if (key === 'Shift') {
         setIsShiftKeyPressed(true);
       }
-      if (event.key === 'Meta' || event.key === 'Control') {
+      if (key === 'Meta' || key === 'Control') {
         setIsCommandKeyPressed(true);
       }
     };
-    const keyUpHandler = (event: KeyboardEvent) => {
-      if (event.key === 'Shift') {
+    const keyUpHandler = ({ key }) => {
+      if (key === 'Shift') {
         setIsShiftKeyPressed(false);
       }
-      if (event.key === 'Meta' || event.key === 'Control') {
+      if (key === 'Meta' || key === 'Control') {
         setIsCommandKeyPressed(false);
       }
     };
@@ -39,7 +37,7 @@ export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
     };
   }, []);
 
-  const handleNormalClick = (checked: boolean, id: number, index: number) => {
+  const handleNormalClick = (checked: boolean, id: string, index: number) => {
     setSelectedInputs((prevInputs) =>
       checked
         ? [...prevInputs, id]
@@ -48,7 +46,7 @@ export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
     setStartShiftClickIndex(index);
   };
 
-  const handleCommandClick = (id: number) => {
+  const handleCommandClick = (id: string) => {
     setSelectedInputs((prevInputs) =>
       prevInputs.includes(id)
         ? prevInputs.filter((inputId) => inputId !== id)
@@ -76,7 +74,7 @@ export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
     });
   };
 
-  const handleCheck = (checked: boolean, id: number, index: number) => {
+  const handleCheck = (checked: boolean, id: string, index: number) => {
     if (isCommandKeyPressed) {
       handleCommandClick(id);
     } else if (isShiftKeyPressed && startShiftClickIndex !== null) {
@@ -88,7 +86,7 @@ export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
 
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
-    id: number,
+    id: string,
     index: number
   ) => {
     if (event.key === 'Enter') {
@@ -104,14 +102,14 @@ export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
     <form
       onSubmit={async (e) => {
         e.preventDefault();
-        await deleteGuestbookEntries(selectedInputs.map(String));
+        await deleteGuestbookEntries(selectedInputs);
       }}
     >
       <DeleteButton isActive={selectedInputs.length !== 0} />
       {entries.map((entry, index) => (
         <GuestbookEntry key={entry.id} entry={entry}>
           <input
-            name={String(entry.id)}
+            name={entry.id}
             type="checkbox"
             className="mr-2 w-4 h-4"
             onChange={(e) => handleCheck(e.target.checked, entry.id, index)}
@@ -124,18 +122,12 @@ export default function Form({ entries }: { entries: GuestbookEntryType[] }) {
   );
 }
 
-function GuestbookEntry({
-  entry,
-  children,
-}: {
-  entry: GuestbookEntryType;
-  children: ReactNode;
-}) {
+function GuestbookEntry({ entry, children }) {
   return (
     <div className="flex flex-col space-y-1 mb-4">
       <div className="w-full text-sm break-words items-center flex">
         {children}
-        <span className="text-gray-600 dark:text-gray-400 mr-1 border-gray-100">
+        <span className="text-neutral-600 dark:text-neutral-400 mr-1 border-neutral-100">
           {entry.created_by}:
         </span>
         {entry.body}
@@ -144,14 +136,15 @@ function GuestbookEntry({
   );
 }
 
+const cx = (...classes) => classes.filter(Boolean).join(' ');
 
-function DeleteButton({ isActive }: { isActive: boolean }) {
+function DeleteButton({ isActive }) {
   const { pending } = useFormStatus();
 
   return (
     <button
       className={cx(
-        'px-3 py-2 border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded p-1 text-sm inline-flex items-center leading-4 text-gray-900 dark:text-gray-100 mb-8 transition-all',
+        'px-3 py-2 border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 rounded p-1 text-sm inline-flex items-center leading-4 text-neutral-900 dark:text-neutral-100 mb-8 transition-all',
         {
           'bg-red-300/50 dark:bg-red-700/50': isActive,
         }

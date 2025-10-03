@@ -7,11 +7,10 @@ import { getBlogPosts } from '../../db/blog';
 import ViewCounter from '../view-counter';
 import { increment } from '../../db/actions';
 
-export async function generateMetadata(
-  props: PageProps<'/blog/[slug]'>
-): Promise<Metadata | undefined> {
-  const { slug } = await props.params;
-  let post = getBlogPosts().find((post) => post.slug === slug);
+export async function generateMetadata({
+  params,
+}): Promise<Metadata | undefined> {
+  let post = getBlogPosts().find((post) => post.slug === params.slug);
   if (!post) {
     return;
   }
@@ -90,9 +89,8 @@ function escapeForHTML(str: string) {
   );
 }
 
-export default async function Blog(props: PageProps<'/blog/[slug]'>) {
-  const { slug } = await props.params;
-  let post = getBlogPosts().find((post) => post.slug === slug);
+export default function Blog({ params }) {
+  let post = getBlogPosts().find((post) => post.slug === params.slug);
 
   if (!post) {
     notFound();
@@ -102,7 +100,7 @@ export default async function Blog(props: PageProps<'/blog/[slug]'>) {
   const safeTitle = escapeForHTML(post.metadata.title);
   const safeSummary = escapeForHTML(post.metadata.summary);
   const safeImage = post.metadata.image ? escapeForHTML(`https://ableandrew.com${post.metadata.image}`) : escapeForHTML(`https://ableandrew.com/og?title=${post.metadata.title}`);
-  const safeSlug = escapeForHTML(slug);
+  const safeSlug = escapeForHTML(post.slug);
   const safePublishedAt = escapeForHTML(post.metadata.publishedAt);
 
   return (
@@ -131,7 +129,7 @@ export default async function Blog(props: PageProps<'/blog/[slug]'>) {
         {post.metadata.title}
       </h1>
       <div className="flex justify-between items-center mt-2 mb-8 text-sm max-w-[650px]">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
           {formatDate(post.metadata.publishedAt)}
         </p>
         <Suspense fallback={<p className="h-5" />}>

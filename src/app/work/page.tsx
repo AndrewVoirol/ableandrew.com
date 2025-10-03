@@ -1,12 +1,12 @@
 'use client'
-import React, { useState, ReactNode } from 'react';
+import React, { useState } from 'react';
 import { FaAward, FaBriefcase, FaCertificate, FaGraduationCap, FaLightbulb } from 'react-icons/fa';
 
 export default function WorkPage() {
-  const [modalContent, setModalContent] = useState<ReactNode>('');
+  const [modalContent, setModalContent] = useState('');
   const [isModalOpen, setModalOpen] = useState(false);
 
-  const openModal = (content: ReactNode) => {
+  const openModal = (content) => {
     setModalContent(content);
     setModalOpen(true);
   };

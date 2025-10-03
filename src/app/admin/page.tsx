@@ -1,5 +1,4 @@
-import { auth } from '@/app/auth';
-import { headers } from 'next/headers';
+import { auth } from '../../app/auth';
 import { getGuestbookEntries } from '../../app/db/queries';
 import { redirect } from 'next/navigation';
 import Form from './form';
@@ -9,9 +8,7 @@ export const metadata = {
 };
 
 export default async function GuestbookPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  let session = await auth();
   if (session?.user?.email !== 'andrew@ableandrew.com') {
     redirect('/');
   }
